@@ -1,14 +1,14 @@
 package com.zetta.api.controller;
 
+import com.zetta.api.dto.TarefaDTO;
+import com.zetta.api.enums.Prioridade;
 import com.zetta.api.enums.Status;
-import com.zetta.api.model.TarefaModel;
 import com.zetta.api.model.UsuarioModel;
-import com.zetta.api.repository.TarefaRepository;
 import com.zetta.api.repository.UsuarioRepository;
+import com.zetta.api.service.TarefaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,53 +16,44 @@ import java.util.List;
 @RestController
 @RequestMapping("/tarefas")
 public class TarefaController {
-    @Autowired
-    private TarefaRepository tarefaRepository;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private TarefaService tarefaService;
+
     @PostMapping
-    public ResponseEntity<TarefaModel> criar(@RequestParam Long usuarioId, @RequestBody TarefaModel tarefa){
-        return usuarioRepository.findById(usuarioId).map(usuario -> {
-            tarefa.setUsuario(usuario);
-            tarefa.setStatus(Status.PENDENTE);
-            return ResponseEntity.ok(tarefaRepository.save(tarefa));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<TarefaDTO> criar(@RequestBody TarefaDTO dto) {
+        return ResponseEntity.ok(tarefaService.salvar(dto));
     }
 
     @GetMapping
-    public ResponseEntity<List<TarefaModel>> listarTodas(Authentication auth){
-        String emailLogado = auth.getName();
-        UsuarioModel usuarioLogado = usuarioRepository.findByEmail(emailLogado)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario nao encontrado; "));
-        return ResponseEntity.ok(tarefaRepository.findAllByUsuarioId(usuarioLogado.getId()));
+    public ResponseEntity<List<TarefaDTO>> listar(Authentication auth) {
+        UsuarioModel usuario = usuarioRepository.findByEmail(auth.getName()).orElseThrow();
+        return ResponseEntity.ok(tarefaService.listarPorUsuario(usuario));
     }
 
-    @GetMapping("/status")
-    public ResponseEntity<List<TarefaModel>> listarPorStatus(Authentication auth, @RequestParam Status status){
-        String emailLogado = auth.getName();
-        UsuarioModel usuarioLogado = usuarioRepository.findByEmail(emailLogado)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario nao encontrado; "));
-        return ResponseEntity.ok(tarefaRepository.findAllByUsuarioIdAndStatus(usuarioLogado.getId(), status));
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<TarefaDTO>> listarPorStatus(Authentication auth, @RequestParam Status status) {
+        UsuarioModel usuario = usuarioRepository.findByEmail(auth.getName()).orElseThrow();
+        return ResponseEntity.ok(tarefaService.listarPorStatus(usuario, status));
+    }
+
+    @GetMapping("/prioridade/{prioridade}")
+    public ResponseEntity<List<TarefaDTO>> listarPorStatus(Authentication auth, @RequestParam Prioridade prioridade) {
+        UsuarioModel usuario = usuarioRepository.findByEmail(auth.getName()).orElseThrow();
+        return ResponseEntity.ok(tarefaService.listarPorPrioridade(usuario, prioridade));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TarefaModel> atualizar(@PathVariable Long tarefaId, @RequestBody TarefaModel novaTarefa){
-        return tarefaRepository.findById(tarefaId).map(tarefa -> {
-            tarefa.setNome(novaTarefa.getNome());
-            tarefa.setDescricao(novaTarefa.getDescricao());
-            tarefa.setStatus(novaTarefa.getStatus());
-            return ResponseEntity.ok(tarefaRepository.save(tarefa));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<TarefaDTO> atualizar(@PathVariable Long id, @RequestBody TarefaDTO dto) {
+        return ResponseEntity.ok(tarefaService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<TarefaModel> deletar(@PathVariable Long tarefaId){
-        if(tarefaRepository.existsById(tarefaId)){
-            tarefaRepository.deleteById(tarefaId);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        tarefaService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

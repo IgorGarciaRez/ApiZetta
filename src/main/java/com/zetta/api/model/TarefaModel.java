@@ -1,5 +1,6 @@
 package com.zetta.api.model;
 
+import com.zetta.api.enums.Prioridade;
 import com.zetta.api.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,6 +16,9 @@ public class TarefaModel {
 
     private String nome;
     private String descricao;
+
+    @Enumerated(EnumType.STRING)
+    private Prioridade prioridade;
 
     @Enumerated(EnumType.STRING)
     private Status status;
