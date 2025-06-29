@@ -6,6 +6,7 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,16 +19,13 @@ public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/registrar")
-    public ResponseEntity<UsuarioModel> registrar(@RequestBody UsuarioModel usuario){
-        if(usuarioRepository.findByEmail(usuario.getEmail()).isPresent()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    public ResponseEntity<?> registrar(@RequestBody UsuarioModel user) {
+        if (usuarioRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email já cadastrado");
         }
-        String senha = passwordEncoder.encode(usuario.getSenha());
-        usuario.setSenha(senha);
-        return ResponseEntity.ok().body(usuarioRepository.save(usuario));
+        user.setSenha(new BCryptPasswordEncoder().encode(user.getSenha()));
+        return ResponseEntity.ok(usuarioRepository.save(user));
     }
 }
