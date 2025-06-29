@@ -2,10 +2,13 @@ package com.zetta.api.controller;
 
 import com.zetta.api.enums.Status;
 import com.zetta.api.model.TarefaModel;
+import com.zetta.api.model.UsuarioModel;
 import com.zetta.api.repository.TarefaRepository;
 import com.zetta.api.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,13 +32,19 @@ public class TarefaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TarefaModel>> listarTodas(@RequestParam Long usuarioId){
-        return ResponseEntity.ok(tarefaRepository.findAllByUsuarioId(usuarioId));
+    public ResponseEntity<List<TarefaModel>> listarTodas(Authentication auth){
+        String emailLogado = auth.getName();
+        UsuarioModel usuarioLogado = usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario nao encontrado; "));
+        return ResponseEntity.ok(tarefaRepository.findAllByUsuarioId(usuarioLogado.getId()));
     }
 
     @GetMapping("/status")
-    public ResponseEntity<List<TarefaModel>> listarPorStatus(@RequestParam Long usuarioId, @RequestParam Status status){
-        return ResponseEntity.ok(tarefaRepository.findAllByUsuarioIdAndEstado(usuarioId, status));
+    public ResponseEntity<List<TarefaModel>> listarPorStatus(Authentication auth, @RequestParam Status status){
+        String emailLogado = auth.getName();
+        UsuarioModel usuarioLogado = usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario nao encontrado; "));
+        return ResponseEntity.ok(tarefaRepository.findAllByUsuarioIdAndStatus(usuarioLogado.getId(), status));
     }
 
     @PutMapping("/{id}")
