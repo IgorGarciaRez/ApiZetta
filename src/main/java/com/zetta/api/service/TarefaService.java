@@ -57,7 +57,7 @@ public class TarefaService {
     public TarefaDTO salvar(TarefaDTO dto, Authentication auth) {
         UsuarioModel atual = usuarioRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        if(atual.getCargo() == Cargo.ADMIN || atual.getId().equals(dto.id())){
+        if(atual.getCargo() == Cargo.ADMIN || atual.getId().equals(dto.usuarioId())){
             TarefaModel salvo = tarefaRepository.save(toEntity(dto));
             return toDTO(salvo);
         }

@@ -1,5 +1,6 @@
 package com.zetta.api.service;
 
+import com.zetta.api.model.UsuarioModel;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -13,11 +14,14 @@ import java.util.Date;
 public class JwtService {
     private static final String SECRET_KEY = "apiZetta2025-ProjetoTodoList-IgorGarciaRezende";
 
-    public String gerarToken(UserDetails user){
+    public String gerarToken(UserDetails user) {
+        UsuarioModel usuario = (UsuarioModel) user;
+
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .setSubject(usuario.getEmail())
+                .claim("role", usuario.getCargo().name()) // Adiciona o cargo como claim
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 *60))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1h
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
