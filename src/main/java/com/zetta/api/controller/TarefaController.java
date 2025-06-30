@@ -6,7 +6,6 @@ import com.zetta.api.enums.Status;
 import com.zetta.api.model.UsuarioModel;
 import com.zetta.api.repository.UsuarioRepository;
 import com.zetta.api.service.TarefaService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

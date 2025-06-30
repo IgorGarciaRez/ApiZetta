@@ -20,9 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsuarioController {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
     private UsuarioService usuarioService;
 
     @PostMapping("/registrar")
