@@ -19,7 +19,8 @@ public class UsuarioService {
                 model.getId(),
                 model.getNome(),
                 model.getEmail(),
-                model.getSenha()
+                model.getSenha(),
+                model.getCargo()
         );
     }
 
@@ -29,6 +30,7 @@ public class UsuarioService {
         model.setNome(dto.nome());
         model.setEmail(dto.email());
         model.setSenha(dto.senha());
+        model.setCargo(dto.cargo());
         return model;
     }
 
