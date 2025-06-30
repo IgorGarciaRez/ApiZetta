@@ -1,0 +1,5 @@
+com\zetta\api\controller\UsuarioControllerTest.class
+com\zetta\api\controller\TarefaControllerTest.class
+com\zetta\api\service\UsuarioServiceTest.class
+com\zetta\api\service\TarefaServiceTest.class
+com\zetta\api\ApiApplicationTests.class
